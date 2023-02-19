@@ -25,7 +25,7 @@ impl Shape {
                     na::Vector3::new(
                         (r2 + r1 * phi.cos()) * theta.cos(),
                         (r2 + r1 * phi.cos()) * theta.sin(),
-                        r2 * phi.sin(),
+                        r1 * phi.sin(),
                     ),
                     na::Vector3::new(phi.cos() * theta.cos(), phi.cos() * theta.sin(), phi.sin()),
                 ));
