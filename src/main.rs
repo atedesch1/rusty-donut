@@ -32,10 +32,23 @@ impl Shape {
             }
         }
     }
+
+    fn rotate(&mut self, rot: &na::Rotation<f32, 3>) -> () {
+        for i in 0..self.points.len() {
+            self.points[i] = (rot * self.points[i].0, rot * self.points[i].1);
+        }
+    }
 }
 
 fn main() {
     let mut donut = Shape::new();
     donut.initialize_donut(10., 20., 100);
-    println!("{:?}", donut);
+
+    let rot_yaxis = na::Rotation3::from_axis_angle(&na::Vector3::y_axis(), 1.);
+    let rot_xaxis = na::Rotation3::from_axis_angle(&na::Vector3::x_axis(), 2.);
+    let rot = rot_xaxis * rot_yaxis;
+
+    loop {
+        donut.rotate(&rot);
+    }
 }
