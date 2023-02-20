@@ -34,11 +34,48 @@ impl Shape {
             }
         }
     }
+
+    fn initialize_cube(&mut self, length: f32, precision: usize) -> () {
+        self.points = Vec::with_capacity(6 * precision * precision);
+        let increment = length / precision as f32;
+        let half_length = length / 2.;
+
+        for d1 in 0..precision {
+            let dd1 = -half_length + (d1 as f32) * increment;
+            for d2 in 0..precision {
+                let dd2 = -half_length + (d2 as f32) * increment;
+                for normal_direction in vec![-1., 1.] {
+                    let normal = Vector3::x_axis().scale(normal_direction);
+                    self.points.push((
+                        normal.scale(half_length)
+                            + Vector3::y_axis().scale(dd1)
+                            + Vector3::z_axis().scale(dd2),
+                        normal,
+                    ));
+                    let normal = Vector3::y_axis().scale(normal_direction);
+                    self.points.push((
+                        normal.scale(half_length)
+                            + Vector3::x_axis().scale(dd1)
+                            + Vector3::z_axis().scale(dd2),
+                        normal,
+                    ));
+                    let normal = Vector3::z_axis().scale(normal_direction);
+                    self.points.push((
+                        normal.scale(half_length)
+                            + Vector3::x_axis().scale(dd1)
+                            + Vector3::y_axis().scale(dd2),
+                        normal,
+                    ));
+                }
+            }
+        }
+    }
 }
 
 fn main() {
-    let mut donut = Shape::new();
-    donut.initialize_donut(10., 25., 80);
+    let mut shape = Shape::new();
+    shape.initialize_donut(10., 25., 80);
+    //shape.initialize_cube(40., 40);
 
     let x_rot_speed = 0.00;
     let y_rot_speed = 0.06;
@@ -65,7 +102,7 @@ fn main() {
         screen_buffer.fill(0);
         distance_buffer.fill(0.);
         let rot = Rotation3::from_euler_angles(x_angle, y_angle, z_angle);
-        for (vi, ni) in &donut.points {
+        for (vi, ni) in &shape.points {
             let v = rot * vi;
             let n = rot * ni;
             let light_vector = light_source - v;
@@ -74,7 +111,7 @@ fn main() {
             if shadow == 0 {
                 continue;
             }
-            let inverse_z = 1. / (spectator_distance- v.z);
+            let inverse_z = 1. / (spectator_distance - v.z);
 
             let pixel_vector = Vector3::new(
                 (v.x * screen_distance / (spectator_distance - v.z)) as i32,
