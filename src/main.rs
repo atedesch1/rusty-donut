@@ -34,28 +34,22 @@ impl Shape {
             }
         }
     }
-
-    fn rotate(&mut self, rot: &Rotation3<f32>) -> () {
-        for i in 0..self.points.len() {
-            self.points[i] = (rot * self.points[i].0, rot * self.points[i].1);
-        }
-    }
 }
 
 fn main() {
     let mut donut = Shape::new();
     donut.initialize_donut(10., 25., 80);
 
-    let x_rot_speed = 0.06;
-    let y_rot_speed = 0.02;
-    let z_rot_speed = 0.01;
+    let x_rot_speed = 0.00;
+    let y_rot_speed = 0.06;
+    let z_rot_speed = 0.02;
     let mut x_angle = 0.;
     let mut y_angle = 0.;
     let mut z_angle = 0.;
 
     let spectator_distance = 50.;
     let screen_distance = 20.;
-    let light_source = Vector3::new(-100., 100., spectator_distance);
+    let light_source = Vector3::new(-100., 100., 100.);
 
     let width = 60;
     let height = 40;
