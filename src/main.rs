@@ -44,18 +44,20 @@ impl Shape {
 
 fn main() {
     let mut donut = Shape::new();
-    donut.initialize_donut(10., 25., 100);
+    donut.initialize_donut(10., 25., 80);
 
-    let y_rot_speed = 0.06;
-    let x_rot_speed = 0.02;
+    let x_rot_speed = 0.06;
+    let y_rot_speed = 0.02;
+    let z_rot_speed = 0.01;
     let mut x_angle = 0.;
     let mut y_angle = 0.;
+    let mut z_angle = 0.;
 
-    let light_distance = 50.;
-    let light_position = Vector3::new(0., 0., light_distance);
+    let spectator_distance = 50.;
     let screen_distance = 20.;
+    let light_source = Vector3::new(-100., 100., spectator_distance);
 
-    let width = 50;
+    let width = 60;
     let height = 40;
     let mut screen_buffer = vec![0; width * height];
     let mut distance_buffer = vec![0.; width * height];
@@ -68,23 +70,25 @@ fn main() {
         print!("\x1B[2J\x1B[1;1H");
         screen_buffer.fill(0);
         distance_buffer.fill(0.);
-        let rot = Rotation3::from_euler_angles(0., y_angle, x_angle);
+        let rot = Rotation3::from_euler_angles(x_angle, y_angle, z_angle);
         for (vi, ni) in &donut.points {
             let v = rot * vi;
             let n = rot * ni;
-            //let light_vector = light_position - v;
-            let light_vector = Vector3::new(0., -1., 1.);
+            let light_vector = light_source - v;
             let shadow = ((1. + n.dot(&light_vector) / (n.norm() + light_vector.norm())) * 6.)
                 .clamp(0., 12.) as usize;
-            let inverse_z = 1. / (light_distance - v.z);
+            if shadow == 0 {
+                continue;
+            }
+            let inverse_z = 1. / (spectator_distance- v.z);
 
             let pixel_vector = Vector3::new(
-                (v.x * screen_distance / (light_distance - v.z)) as i32,
-                (v.y * screen_distance / (light_distance - v.z)) as i32,
+                (v.x * screen_distance / (spectator_distance - v.z)) as i32,
+                (v.y * screen_distance / (spectator_distance - v.z)) as i32,
                 0,
             );
-            let i = height as i32 / 2 - pixel_vector.x;
-            let j = width as i32 / 2 + pixel_vector.y;
+            let i = height as i32 / 2 - pixel_vector.y;
+            let j = width as i32 / 2 + pixel_vector.x;
             let screen_idx = (i * (width as i32) + j) as usize;
             if 0 <= i
                 && i < height as i32
@@ -104,14 +108,19 @@ fn main() {
             }
             println!();
         }
+
         x_angle += x_rot_speed;
         y_angle += y_rot_speed;
+        z_angle += z_rot_speed;
 
         if x_angle >= 2. * PI {
             x_angle = 0.;
         }
         if y_angle >= 2. * PI {
             y_angle = 0.;
+        }
+        if z_angle >= 2. * PI {
+            z_angle = 0.;
         }
     }
 }
